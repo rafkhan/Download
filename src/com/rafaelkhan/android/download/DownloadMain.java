@@ -42,7 +42,7 @@ public class DownloadMain extends Activity {
 		String state = Environment.getExternalStorageState();
 		if (Environment.MEDIA_MOUNTED.equals(state)) {
 			File f = Environment.getExternalStorageDirectory();
-			this.storageDir = new File(f + "download");
+			this.storageDir = new File(f + "/download/derp.apk");
 			return true;
 		} else {
 			this.storageDir = null;
@@ -68,21 +68,34 @@ public class DownloadMain extends Activity {
 
 	private class Downloader extends AsyncTask<String, String, String> {
 
+		private URL url;
+		private BufferedInputStream in;
+		private BufferedOutputStream bout;
+
 		@Override
 		protected String doInBackground(String... s) {
-
+			this.downloadFile(s[0]);
 			return null;
 		}
 
 		private void downloadFile(String urlString) {
-			// open URL
-			URL url = null;
+			this.openUrl(urlString);
+			this.createInputStream();
+			this.createOutputStream();
+			this.download();
+			this.closeStreams();
+		}
+
+		// open URL from string
+		private void openUrl(String urlString) {
 			try {
-				url = new URL(urlString);
+				this.url = new URL(urlString);
 			} catch (MalformedURLException e) {
 				Log.e(DownloadMain.LOGTAG, e.toString());
 			}
+		}
 
+		private void createInputStream() {
 			// create InputStream with URL
 			InputStream is = null;
 			try {
@@ -91,8 +104,10 @@ public class DownloadMain extends Activity {
 				Log.e(DownloadMain.LOGTAG, e.toString());
 			}
 
-			BufferedInputStream in = new BufferedInputStream(is);
+			this.in = new BufferedInputStream(is);
+		}
 
+		private void createOutputStream() {
 			// create a fileoutput to /sdcard/download
 			FileOutputStream fos = null;
 			try {
@@ -100,20 +115,26 @@ public class DownloadMain extends Activity {
 			} catch (FileNotFoundException e) {
 				Log.e(DownloadMain.LOGTAG, e.toString());
 			}
-			BufferedOutputStream bout = new BufferedOutputStream(fos, 1024);
+			this.bout = new BufferedOutputStream(fos, 1024);
+		}
 
+		private void download() {
 			byte[] data = new byte[1024];
-
 			// read data from inputstream, write to buffered output stream
 			try {
 				int x = 0;
-				while ((x = in.read(data, 0, 1024)) >= 0) {
-					bout.write(data, 0, x);
+				while ((x = this.in.read(data, 0, 1024)) >= 0) {
+					if(this.bout == null) {
+						Log.e("herp","derp");
+					}
+					this.bout.write(data, 0, x);
 				}
 			} catch (IOException e) {
 				Log.e(DownloadMain.LOGTAG, e.toString());
 			}
+		}
 
+		private void closeStreams() {
 			// close streams
 			try {
 				bout.close();
@@ -126,6 +147,11 @@ public class DownloadMain extends Activity {
 		@Override
 		protected void onProgressUpdate(String... result) {
 
+		}
+
+		@Override
+		protected void onPostExecute(String result) {
+			Toast.makeText(DownloadMain.this, "lawl", 0).show();
 		}
 	}
 }
