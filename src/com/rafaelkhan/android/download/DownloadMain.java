@@ -68,6 +68,9 @@ public class DownloadMain extends Activity {
 			// notify user of invalid url
 			Toast.makeText(this, "Invalid URL", 0).show();
 		} else {
+			if (!urlString.startsWith("http://")) {
+				urlString = "http://" + urlString;
+			}
 			new Downloader().execute(urlString, saveFile);
 		}
 	}
