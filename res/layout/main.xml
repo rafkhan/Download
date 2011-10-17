@@ -9,19 +9,35 @@
 		android:id="@+id/linearLayout1"
 		android:layout_height="wrap_content"
 		android:layout_width="fill_parent">
-		 
-		<EditText 
-			android:id="@+id/url_field"
-			android:layout_width="wrap_content"
+		
+		<LinearLayout 
 			android:layout_height="wrap_content" 
-			android:layout_weight="1">
-			<requestFocus></requestFocus>
-		</EditText>
+			android:layout_width="wrap_content" 
+			android:layout_weight="1" 
+			android:orientation="vertical">
+			
+			<EditText 
+				android:id="@+id/url_field"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content" 
+				android:layout_weight="1"
+				android:hint="URL">
+				<requestFocus></requestFocus>
+			</EditText>
+			
+			<EditText 
+				android:id="@+id/save_as_field"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content" 
+				android:layout_weight="1"
+				android:hint="Save as... (optional)">
+			</EditText>
+		</LinearLayout>
 		
 		<Button 
 			android:id="@+id/button1"
 			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
+			android:layout_height="fill_parent"
 			android:text="Go!"
 			android:onClick="goButton"/>
 			

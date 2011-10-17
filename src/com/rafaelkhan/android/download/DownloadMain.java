@@ -42,7 +42,7 @@ public class DownloadMain extends Activity {
 		String state = Environment.getExternalStorageState();
 		if (Environment.MEDIA_MOUNTED.equals(state)) {
 			File f = Environment.getExternalStorageDirectory();
-			this.storageDir = new File(f + "/download/derp.apk");
+			this.storageDir = new File(f + "/download/");
 			return true;
 		} else {
 			this.storageDir = null;
@@ -57,12 +57,15 @@ public class DownloadMain extends Activity {
 		EditText urlField = (EditText) findViewById(R.id.url_field);
 		String urlString = urlField.getText().toString(); // get string contents
 
+		EditText saveAsField = (EditText) findViewById(R.id.save_as_field);
+		String saveFile = saveAsField.getText().toString();
+
 		// check value
 		if (urlString.equals("")) {
 			// notify user of invalid url
 			Toast.makeText(this, "Invalid URL", 0).show();
 		} else {
-			new Downloader().execute(urlString);
+			new Downloader().execute(urlString, saveFile);
 		}
 	}
 
@@ -71,9 +74,20 @@ public class DownloadMain extends Activity {
 		private URL url;
 		private BufferedInputStream in;
 		private BufferedOutputStream bout;
+		private String fileName; // file name to save as
 
 		@Override
 		protected String doInBackground(String... s) {
+			if (!s[1].equals("")) { // get file name
+				this.fileName = s[1];
+			} else {
+				if (s[0].contains("/")) {
+					this.fileName = s[0].substring(s[0].lastIndexOf("/"));
+				} else {
+					this.fileName = s[0];
+				}
+			}
+
 			this.downloadFile(s[0]);
 			return null;
 		}
@@ -111,7 +125,8 @@ public class DownloadMain extends Activity {
 			// create a fileoutput to /sdcard/download
 			FileOutputStream fos = null;
 			try {
-				fos = new FileOutputStream(DownloadMain.this.storageDir);
+				fos = new FileOutputStream(DownloadMain.this.storageDir
+						+ this.fileName);
 			} catch (FileNotFoundException e) {
 				Log.e(DownloadMain.LOGTAG, e.toString());
 			}
@@ -124,9 +139,6 @@ public class DownloadMain extends Activity {
 			try {
 				int x = 0;
 				while ((x = this.in.read(data, 0, 1024)) >= 0) {
-					if(this.bout == null) {
-						Log.e("herp","derp");
-					}
 					this.bout.write(data, 0, x);
 				}
 			} catch (IOException e) {
@@ -151,7 +163,9 @@ public class DownloadMain extends Activity {
 
 		@Override
 		protected void onPostExecute(String result) {
-			Toast.makeText(DownloadMain.this, "lawl", 0).show();
+			Toast.makeText(DownloadMain.this,
+					"Saved " + DownloadMain.this.storageDir + this.fileName, 0)
+					.show();
 		}
 	}
 }
