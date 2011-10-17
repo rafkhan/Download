@@ -3,7 +3,8 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:orientation="vertical" 
 	android:layout_width="fill_parent"
-	android:layout_height="fill_parent">
+	android:layout_height="fill_parent"
+	android:padding="5dp">
 	
 	<LinearLayout 
 		android:id="@+id/linearLayout1"
@@ -47,14 +48,10 @@
 		android:id="@+id/progress_bar"
 		style="?android:attr/progressBarStyleHorizontal"
 		android:layout_height="wrap_content" 
-		android:layout_width="fill_parent" 
-		android:layout_marginLeft="7dp"
-		android:layout_marginRight="7dp"/>
+		android:layout_width="fill_parent"/>
 		
 	<TextView
 		android:id="@+id/textView1"
-		android:layout_marginLeft="7dp"
-		android:layout_marginRight="7dp"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:text="TextView" />
