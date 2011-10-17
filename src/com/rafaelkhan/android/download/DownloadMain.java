@@ -42,7 +42,7 @@ public class DownloadMain extends Activity {
 		String state = Environment.getExternalStorageState();
 		if (Environment.MEDIA_MOUNTED.equals(state)) {
 			File f = Environment.getExternalStorageDirectory();
-			this.storageDir = new File(f + "/download/");
+			this.storageDir = new File(f + "/download");
 			return true;
 		} else {
 			this.storageDir = null;
@@ -82,7 +82,7 @@ public class DownloadMain extends Activity {
 				this.fileName = s[1];
 			} else {
 				if (s[0].contains("/")) {
-					this.fileName = s[0].substring(s[0].lastIndexOf("/"));
+					this.fileName = s[0].substring(s[0].lastIndexOf("/") + 1);
 				} else {
 					this.fileName = s[0];
 				}
@@ -163,9 +163,10 @@ public class DownloadMain extends Activity {
 
 		@Override
 		protected void onPostExecute(String result) {
-			Toast.makeText(DownloadMain.this,
-					"Saved " + DownloadMain.this.storageDir + this.fileName, 0)
-					.show();
+			Toast.makeText(
+					DownloadMain.this,
+					"Saved " + DownloadMain.this.storageDir + "/"
+							+ this.fileName, 0).show();
 		}
 	}
 }
