@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -17,6 +18,7 @@ import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class DownloadMain extends Activity {
@@ -75,6 +77,7 @@ public class DownloadMain extends Activity {
 		private BufferedInputStream in;
 		private BufferedOutputStream bout;
 		private String fileName; // file name to save as
+		private int fileSize;
 
 		@Override
 		protected String doInBackground(String... s) {
@@ -113,7 +116,10 @@ public class DownloadMain extends Activity {
 			// create InputStream with URL
 			InputStream is = null;
 			try {
-				is = url.openStream();
+				HttpURLConnection http = (HttpURLConnection) url
+						.openConnection();
+				this.fileSize = http.getContentLength();
+				is = http.getInputStream();
 			} catch (IOException e) {
 				Log.e(DownloadMain.LOGTAG, e.toString());
 			}
@@ -138,8 +144,14 @@ public class DownloadMain extends Activity {
 			// read data from inputstream, write to buffered output stream
 			try {
 				int x = 0;
-				while ((x = this.in.read(data, 0, 1024)) >= 0) {
+				int totalBytes = 0;
+				while ((x = this.in.read(data, 0, 1024)) > -1) {
 					this.bout.write(data, 0, x);
+					totalBytes += x;
+
+					String b = Integer.toString(totalBytes);
+					String tb = Integer.toString(this.fileSize);
+					this.publishProgress(b, tb);
 				}
 			} catch (IOException e) {
 				Log.e(DownloadMain.LOGTAG, e.toString());
@@ -157,8 +169,9 @@ public class DownloadMain extends Activity {
 		}
 
 		@Override
-		protected void onProgressUpdate(String... result) {
-
+		protected void onProgressUpdate(String... s) {
+			TextView tv = (TextView) findViewById(R.id.textView1);
+			tv.setText(s[0] + "/" + s[1]);
 		}
 
 		@Override
