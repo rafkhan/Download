@@ -18,6 +18,7 @@ import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -74,6 +75,7 @@ public class DownloadMain extends Activity {
 	private class Downloader extends AsyncTask<String, String, String> {
 
 		private URL url;
+		private HttpURLConnection http;
 		private BufferedInputStream in;
 		private BufferedOutputStream bout;
 		private String fileName; // file name to save as
@@ -116,10 +118,9 @@ public class DownloadMain extends Activity {
 			// create InputStream with URL
 			InputStream is = null;
 			try {
-				HttpURLConnection http = (HttpURLConnection) url
-						.openConnection();
-				this.fileSize = http.getContentLength();
-				is = http.getInputStream();
+				this.http = (HttpURLConnection) url.openConnection();
+				this.fileSize = this.http.getContentLength();
+				is = this.http.getInputStream();
 			} catch (IOException e) {
 				Log.e(DownloadMain.LOGTAG, e.toString());
 			}
@@ -145,9 +146,9 @@ public class DownloadMain extends Activity {
 			try {
 				int x = 0;
 				int totalBytes = 0;
-				while ((x = this.in.read(data, 0, 1024)) > -1) {
+				while ((x = this.in.read(data, 0, 1024)) >= 0) {
 					this.bout.write(data, 0, x);
-					totalBytes += x;
+					totalBytes++;
 
 					String b = Integer.toString(totalBytes);
 					String tb = Integer.toString(this.fileSize);
@@ -161,8 +162,9 @@ public class DownloadMain extends Activity {
 		private void closeStreams() {
 			// close streams
 			try {
-				bout.close();
-				in.close();
+				this.http.disconnect();
+				this.bout.close();
+				this.in.close();
 			} catch (IOException e) {
 				Log.e(DownloadMain.LOGTAG, e.toString());
 			}
@@ -172,6 +174,10 @@ public class DownloadMain extends Activity {
 		protected void onProgressUpdate(String... s) {
 			TextView tv = (TextView) findViewById(R.id.textView1);
 			tv.setText(s[0] + "/" + s[1]);
+
+			int percent = (Integer.parseInt(s[0]) / Integer.parseInt(s[1])) * 100;
+			ProgressBar pb = (ProgressBar) findViewById(R.id.progress_bar);
+			pb.setProgress(percent);
 		}
 
 		@Override
