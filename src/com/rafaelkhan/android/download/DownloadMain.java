@@ -151,7 +151,7 @@ public class DownloadMain extends Activity {
 				int totalBytes = 0;
 				while ((x = this.in.read(data, 0, 1024)) >= 0) {
 					this.bout.write(data, 0, x);
-					totalBytes++;
+					totalBytes += x;
 
 					String b = Integer.toString(totalBytes);
 					String tb = Integer.toString(this.fileSize);
@@ -176,11 +176,14 @@ public class DownloadMain extends Activity {
 		@Override
 		protected void onProgressUpdate(String... s) {
 			TextView tv = (TextView) findViewById(R.id.textView1);
-			tv.setText(s[0] + "/" + s[1]);
+			tv.setText(s[0] + " / " + s[1] + "B's");
 
-			int percent = (Integer.parseInt(s[0]) / Integer.parseInt(s[1])) * 100;
+			float a = Integer.parseInt(s[0]);
+			float b = Integer.parseInt(s[1]);
+			float percent = ((a / b) * 100);
+
 			ProgressBar pb = (ProgressBar) findViewById(R.id.progress_bar);
-			pb.setProgress(percent);
+			pb.setProgress((int) Math.abs(percent));
 		}
 
 		@Override
@@ -189,6 +192,8 @@ public class DownloadMain extends Activity {
 					DownloadMain.this,
 					"Saved " + DownloadMain.this.storageDir + "/"
 							+ this.fileName, 0).show();
+			TextView tv = (TextView) findViewById(R.id.textView1);
+			tv.append("\nDownload complete!");
 		}
 	}
 }
