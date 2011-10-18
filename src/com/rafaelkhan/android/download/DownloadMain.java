@@ -25,8 +25,6 @@ import android.widget.Toast;
 public class DownloadMain extends Activity {
 
 	public static String LOGTAG = "Download.";
-
-	public boolean storageAvailable; // if storage is available
 	public File storageDir = null; // external storage directory
 
 	/** Called when the activity is first created. */
@@ -35,7 +33,9 @@ public class DownloadMain extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 
-		this.storageAvailable = this.checkStorage();
+		if (!this.checkStorage()) {
+			Toast.makeText(this, "No sdcard available!", 0).show();
+		}
 	}
 
 	/*
@@ -57,6 +57,14 @@ public class DownloadMain extends Activity {
 	 * Called when the "Go!" button is pressed
 	 */
 	public void goButton(View view) {
+		if (this.checkStorage()) {
+			this.startDownloader();
+		} else {
+			Toast.makeText(this, "No sdcard available!", 0).show();
+		}
+	}
+
+	private void startDownloader() {
 		EditText urlField = (EditText) findViewById(R.id.url_field);
 		String urlString = urlField.getText().toString(); // get string contents
 
