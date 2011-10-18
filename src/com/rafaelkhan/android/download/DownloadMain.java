@@ -12,6 +12,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import android.app.Activity;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -26,6 +29,7 @@ public class DownloadMain extends Activity {
 
 	public static String LOGTAG = "Download.";
 	public File storageDir = null; // external storage directory
+	public boolean downloading = false;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -41,7 +45,7 @@ public class DownloadMain extends Activity {
 	/*
 	 * check if external storage is available
 	 */
-	public boolean checkStorage() {
+	private boolean checkStorage() {
 		String state = Environment.getExternalStorageState();
 		if (Environment.MEDIA_MOUNTED.equals(state)) {
 			File f = Environment.getExternalStorageDirectory();
@@ -49,18 +53,43 @@ public class DownloadMain extends Activity {
 			return true;
 		} else {
 			this.storageDir = null;
+			Toast.makeText(this, "No sdcard available!", 0).show();
 			return false;
 		}
+	}
+
+	// get internet state
+	private boolean checkInterwebs() {
+		ConnectivityManager conMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+		if (conMgr.getNetworkInfo(0).getState() == NetworkInfo.State.CONNECTED
+				|| conMgr.getNetworkInfo(1).getState() == NetworkInfo.State.CONNECTED) {
+			// online
+			return true;
+		} else if (conMgr.getNetworkInfo(0).getState() == NetworkInfo.State.DISCONNECTED
+				|| conMgr.getNetworkInfo(1).getState() == NetworkInfo.State.DISCONNECTED) {
+			// offline
+			Toast.makeText(this,
+					"You are not currently connected to the internet!", 0)
+					.show();
+			return false;
+		}
+
+		return false;
 	}
 
 	/*
 	 * Called when the "Go!" button is pressed
 	 */
 	public void goButton(View view) {
-		if (this.checkStorage()) {
+		if (this.checkStorage() && this.checkInterwebs() && !this.downloading) {
 			this.startDownloader();
 		} else {
-			Toast.makeText(this, "No sdcard available!", 0).show();
+			if (this.downloading) {
+				Toast.makeText(
+						this,
+						"Cannot run multiple downloads at the same time. "
+								+ "I'm still working on that :)", 0).show();
+			}
 		}
 	}
 
@@ -79,6 +108,7 @@ public class DownloadMain extends Activity {
 			if (!urlString.startsWith("http://")) {
 				urlString = "http://" + urlString;
 			}
+			this.downloading = true;
 			new Downloader().execute(urlString, saveFile);
 		}
 	}
@@ -202,6 +232,7 @@ public class DownloadMain extends Activity {
 							+ this.fileName, 0).show();
 			TextView tv = (TextView) findViewById(R.id.textView1);
 			tv.append("\nDownload complete!");
+			DownloadMain.this.downloading = false;
 		}
 	}
 }
